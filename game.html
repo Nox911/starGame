@@ -11,10 +11,23 @@
     
 </head>
 <body>
-    <div class="container">
+    <div class="dead" id="dead">
+        <h2>Вы погибли в бою! :(</h2>
+        <h2>Ваш счет: <span id="score"></span></h2>
+    </div>
+    <div class="container" id="container">
         <div id="game">
         </div>
     </div>
+
+    <audio id='overlord_death'>
+            <source src='sounds/overlord_death.mp3' type='audio/mp3'>
+            <source src='sounds/overlord_death.ogg' type='audio/ogg'>
+    </audio>
+    <audio id='mutalisk_death'>
+            <source src='sounds/overlord_death.mp3' type='audio/mp3'>
+            <source src='sounds/overlord_death.ogg' type='audio/ogg'>
+    </audio>
 
     <script src="js/script.js"></script>
 </body>

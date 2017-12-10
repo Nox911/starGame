@@ -1,8 +1,8 @@
 
 body {
-    background-color:black;
     height:100vh;
     margin:0;
+    background-image: url("../img/space.jpg");
 }
 
 .container {
@@ -10,14 +10,24 @@ body {
     flex-direction:row;
     justify-content: center;
     align-items: center;
-    border:1px dashed red;
-    background-color:black;
-    height:100vh;
+
+    height:100%;
 }
 
 #game {
     background-image: url("../img/background.jpg");
-    width:800px;
-    height:600px;
-    border:1px solid white;
+    width:1000px;
+    height:650px;
+    border:2px solid white;
+    background-size: cover;
+    border-radius:10px;
+    box-shadow: 0 0 250px white;
+}
+
+.dead {
+    display:none;
+    width: 100%;
+    text-align: center;
+    margin-top: 100px;
+    background-color:white;
 }

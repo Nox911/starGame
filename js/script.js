@@ -1,11 +1,14 @@
 
-let gameWidth = 800,
-    gameHeight = 600,
+let gameWidth = 1000,
+    gameHeight = 650,
     heroBullets=[],
     heroBulletSpeed=3,
     lastFire=Date.now(),
-    health=100,
-    shield=100,
+    lastTouch=Date.now(),
+    health=90,
+    shield=60,
+    dispHealth=100,
+    dispShield=100,
     overlordSpeed=0.5,
     mutaliskSpeed=1,
     mutaliskBulletSpeed=3,
@@ -16,6 +19,15 @@ let gameWidth = 800,
     score=0,
     countEnemies=2,
     difficult=0;
+
+
+
+let     soundTrack = new Audio('/Sait/RollingScopsJS/game/src/sounds/soundtrack.mp3'),
+        overlordDeath = new Audio('/Sait/RollingScopsJS/game/src/sounds/overlord_death.mp3'),
+        mutaliskDeath = new Audio('/Sait/RollingScopsJS/game/src/sounds/mutalisk_death.mp3'),
+        heroAttack = new Audio('/Sait/RollingScopsJS/game/src/sounds/hero_Attack.mp3'),
+        mutaliskHit = new Audio('/Sait/RollingScopsJS/game/src/sounds/mutalisk_hit.mp3'),
+        shieldHit = new Audio('/Sait/RollingScopsJS/game/src/sounds/shield_hit.mp3');
 
 
 
@@ -49,6 +61,72 @@ const animationsHero = {
         500, 0, 100, 100
 
     ]
+  };
+
+  const animationsHeroFace = {
+      idle: [
+          80,2,80,80,
+          80,2,80,80,
+          80,2,80,80,
+          160,2,80,80,
+          80,2,80,80,
+          80,2,80,80,
+          80,2,80,80,
+          0,2,80,80
+
+      ],
+      idleDamaged: [
+        80,78,80,80,
+        80,78,80,80,
+        80,78,80,80,
+        160,78,80,80,
+        80,78,80,80,
+        80,78,80,80,
+        80,78,80,80,
+        0,78,80,80
+      ],
+      idlePreDeath: [
+        80,155,80,80,
+        80,155,80,80,
+        80,155,80,80,
+        160,155,80,80,
+        80,155,80,80,
+        80,155,80,80,
+        80,155,80,80,
+        80,155,80,80,
+        0,155,80,80
+      ],
+      attack: [
+        480,2,80,80,
+        480,2,80,80,
+        480,2,80,80
+      ],
+      attackDamaged: [
+        480,78,80,80,
+        480,78,80,80,
+        480,78,80,80
+      ],
+      attackPreDeath: [
+        480,155,80,80,
+        480,155,80,80,
+        480,155,80,80
+      ],
+      takeDamage: [
+        558,5,80,80,
+        558,5,80,80,
+        558,5,80,80
+      ],
+      takeDamageDamaged: [
+        558,78,80,80,
+        558,78,80,80,
+        558,78,80,80
+      ],
+      takeDamagePreDeath: [
+        558,158,80,80,
+        558,158,80,80,
+        558,158,80,80
+      ]
+      
   };
 
   const animationsOverlord = {
@@ -137,6 +215,9 @@ const animationsHeroBullet = {
   let heroBulletImg = new Image();
   heroBulletImg.src = 'img/mutalisk.png';
 
+  const heroFaceImg = new Image();
+  heroFaceImg.src = 'img/heroFace.png';
+
  
 const hero = new Konva.Sprite({
       x: 680, 
@@ -154,6 +235,19 @@ const hero = new Konva.Sprite({
   stage.add(layer);
   hero.start();
 
+  const heroFace = new Konva.Sprite({
+    x:463,
+    y:568,
+    image:heroFaceImg,
+    animation:'idle',
+    animations: animationsHeroFace,
+    frameRate:2,
+    frameIndex:0 
+  });
+  layer.add(heroFace);
+  stage.add(layer);
+  heroFace.start();
+
 let gameLoop = new Konva.Animation(function(frame) {
     handleInput();
     moveOverlord();
@@ -165,51 +259,89 @@ let gameLoop = new Konva.Animation(function(frame) {
     moveHeroBullet ();
     regenShield();
     checkCollisions();
-    scoreText.setAttr('text', 'Score: ' + score);
-    heroHealth.setAttr('text', health +'%');
-    heroShield.setAttr('text', Math.floor(shield)+'%');
-    heroBulletsText.setAttr('text',hero.bullets);
-
-
+    showHeroParam ();
 }, layer);
 gameLoop.start();
 
 
+function showHeroParam () {
+
+    if(shield<dispShield) {
+        dispShield--;
+    }
+    if(shield>dispShield) {
+        dispShield++;
+    }
+    if (health<dispHealth) {
+        dispHealth --;
+    }
+
+    scoreText.setAttr('text', 'Score: ' + score);
+    heroHealth.setAttr('text', Math.floor(dispHealth)+'%');
+    heroShield.setAttr('text', Math.floor(dispShield)+'%');
+    heroBulletsText.setAttr('text',hero.bullets);
+
+
+}
+
+
   // отлавливание событий нажатия на "игровые" клавиши
 function handleInput() {
+
     
-       hero.attrs.animation = 'idle'; // движение по умолчанию
-    
-       if(input.isDown('DOWN') || input.isDown('s')) {
-            if (hero.attrs.x + 1 < gameWidth - 100) { 
-                hero.attrs.animation = 'idle';
-                hero.setX(hero.attrs.x + hero.speed);
-            }
-        }
-    
-        if(input.isDown('UP') || input.isDown('w')) {
-            if (hero.attrs.x - 1 > 0) {
-                hero.attrs.animation = 'idle';
-                hero.setX(hero.attrs.x - hero.speed);
-            }
+       if (health>=70&&Date.now() - lastFire >200&&Date.now() - lastTouch >200) {
+        heroFace.attrs.animation = 'idle';
+        
+       } 
+       else if (health<70&&health>=35&&Date.now() - lastFire >200&&Date.now() - lastTouch >200) {
+        heroFace.attrs.animation = 'idleDamaged';
        }
-    
-        if(input.isDown('LEFT') || input.isDown('a')) {
-            if (hero.attrs.y + 1 < gameHeight -180) {
+       else if (health<35&&Date.now() - lastFire >200&&Date.now() - lastTouch >200) {
+        heroFace.attrs.animation = 'idlePreDeath';
+       }   
+
+
+       if(input.isDown('DOWN') || input.isDown('s')) {
+            if (hero.attrs.y + 1 < gameHeight -185) { 
                 hero.attrs.animation = 'idle';
                 hero.setY(hero.attrs.y + hero.speed);
             }
         }
     
-        if(input.isDown('RIGHT') || input.isDown('d')) {
+        if(input.isDown('UP') || input.isDown('w')) {
             if (hero.attrs.y - 1 > 0) {
                 hero.attrs.animation = 'idle';
-                hero.setY(hero.attrs.y - hero.speed);            
+                hero.setY(hero.attrs.y - hero.speed);
+            }
+       } 
+    
+        if(input.isDown('LEFT') || input.isDown('a')) {
+            if (hero.attrs.x + 1 > 0 ) {
+                hero.attrs.animation = 'idle';
+                hero.setX(hero.attrs.x - hero.speed);
+            }
+        }
+    
+        if(input.isDown('RIGHT') || input.isDown('d')) {
+            if (hero.attrs.x - 1 < gameWidth -100) {
+                hero.attrs.animation = 'idle';
+                hero.setX(hero.attrs.x + hero.speed);           
             }
         }
 
         if((input.isDown('SPACE')) && (Date.now() - lastFire >200) && (hero.bullets>0)) {
             makeBullet('heroBullet',hero.attrs.x +10,hero.attrs.y + 40);
+            if (health>70) {
+                heroFace.attrs.animation = 'attack';              
+               } 
+               else if (health<70&&health>35) {
+                heroFace.attrs.animation = 'attackDamaged';
+               }
+               else if (health<35) {
+                heroFace.attrs.animation = 'attackPreDeath';
+               }   
+                heroFace.attrs.frameIndex=0;
+                heroFace.action='shoot';
         }
     
    }
@@ -252,7 +384,7 @@ function makeEnemy(type, x,y) {
             });
             mutalisk.action='';
             mutalisk.time=70;
-            mutalisk.position=getRandomInt(70,150);
+            mutalisk.position=getRandomInt(70,200);
             mutalisks.push(mutalisk);
     
             layer.add(mutalisk);
@@ -310,20 +442,20 @@ function makeBullet(type, x, y) {
 
     switch  (type) {
         case('mutaliskBullet') : {
-             mutaliskBullet = new Konva.Sprite({
-            x: x,
-            y: y,
-            image: mutaliskImg,
-            animation: 'bullet',
-            animations: animationsMutalisk,
-            frameRate: 7,
-            frameIndex: 0
-            });
-            mutaliskBullets.push(mutaliskBullet);
-            layer.add(mutaliskBullet);
-            stage.add(layer);
-            mutaliskBullet.start();
-            break;
+            mutaliskBullet = new Konva.Sprite({
+                x: x,
+                y: y,
+                image: mutaliskImg,
+                animation: 'bullet',
+                animations: animationsMutalisk,
+                frameRate: 7,
+                frameIndex: 0
+                });
+                mutaliskBullets.push(mutaliskBullet);
+                layer.add(mutaliskBullet);
+                stage.add(layer);
+                mutaliskBullet.start();
+                break;
     };
         case ('heroBullet') : {
             heroBullet = new Konva.Sprite({
@@ -343,6 +475,7 @@ function makeBullet(type, x, y) {
                 heroBullet.start();
                 lastFire = Date.now();
                 hero.bullets--;
+                heroAttack.play();
                 break;
         };
    }
@@ -353,15 +486,16 @@ function makeBullet(type, x, y) {
 
 function mutaliskAttack() {
 
+    let attackPeriod = 200;
     
        for(let i = 0; i < mutalisks.length; i++) {
            if ((mutalisks[i].attrs.x>=70) && (mutalisks[i].action!=='die')){
            mutalisks[i].time++;
     
-           if (mutalisks[i].time > 200 && mutalisks[i].attrs.animation === 'idle') {
+           if (mutalisks[i].time > attackPeriod && mutalisks[i].attrs.animation === 'idle') {
                mutalisks[i].action = 'attack';
                mutalisks[i].attrs.animation = 'idle';
-               mutalisks[i].time -= 200;
+               mutalisks[i].time -= attackPeriod;
            };
  
             
@@ -383,7 +517,7 @@ function mutaliskDie() {
         if ((mutalisk.action==='die') && (mutalisk.attrs.frameIndex>7)) {
             mutalisk.setX(-1500);
             mutalisks.splice(index,1);
-            score+=300;
+            score+=200;
             updateDifficult();
         }
     });
@@ -429,14 +563,27 @@ function moveHeroBullet () {
 
 // regen shield 
 
-function regenShield(count) {
+function regenShield() {
     
    shield = shield + 0.01;
+
     
    if (shield > 100) {
        shield = 100;
    }
+
+   if (health <= 0) {
+    health = 0;
+    gameOver();
+}
     
+}
+//end game
+function gameOver() {
+    gameLoop.stop();
+    document.getElementById('score').innerText = score;
+    document.getElementById('dead').style.display = "block";
+    document.getElementById('container').style.display = "none";
 }
 
 
@@ -465,9 +612,11 @@ function checkCollisions() {
         mutaliskSize=[80,80],
         mutaliskBulletSize = [],
         overlordPos=[],
-        overlordSize=[80,80];
+        overlordSize=[80,80],
+        gameRightCorner=[gameWidth+100,0];
+        
 
-   heroPos = [hero.attrs.x,hero.attrs.y];
+   heroPos = [hero.attrs.x+40,hero.attrs.y];
   
    
    mutaliskBulletSize = [15,15];
@@ -477,48 +626,159 @@ function checkCollisions() {
     mutaliskBullets.forEach(function(bullet,index) {
         mutaliskBulletPos=[bullet.attrs.x, bullet.attrs.y];
         if (boxCollides(mutaliskBulletPos, mutaliskBulletSize, heroPos, heroSize)) {
-            health--;
+            bullet.setX(-1000);
+            mutaliskBullets.splice(index,1);
+
+
+            lastTouch = Date.now();
+            if (health>70) {
+                heroFace.attrs.animation = 'takeDamage';              
+               } 
+               else if (health<70&&health>35) {
+                heroFace.attrs.animation = 'takeDamageDamaged';
+               }
+               else if (health<35) {
+                heroFace.attrs.animation = 'takeDamagePreDeath';
+               }   
+                heroFace.attrs.frameIndex=0;
+
+
+            if(shield<15){
+                mutaliskHit.play();
+            }
+            if(shield>=15) {
+                shield-=15;
+                shieldHit.play();
+            }
+            else {
+                health-=15-shield;
+                shield=0;
+            }
         }  
     });
 
 
    if (heroBullets.length) {
-
        for( let i = 0; i < heroBullets.length; i++) {
-
-           heroBulletPos = [heroBullets[i].attrs.x, heroBullets[i].attrs.y];//озиция стрелы
-
+           heroBulletPos = [heroBullets[i].attrs.x, heroBullets[i].attrs.y];
             mutalisks.map(function(mutalisk,index) {
                 mutaliskPos = [mutalisk.attrs.x-50,mutalisk.attrs.y];
                 if (mutalisk.action != 'die') {
                     if (boxCollides(mutaliskPos,mutaliskSize,heroBulletPos,heroBulletSize)) {
                         console.log('mutal must die');
-                        heroBullets[i].setX(-1000);
-                        heroBullets.splice(i,1);
+                        mutaliskDeath.play();
+                        if(heroBullets[i]) {
+                            heroBullets[i].setX(-1000);
+                            heroBullets.splice(i,1);
+                        }
                         mutalisk.action='die';
                         mutalisk.attrs.animation='die';
                         mutalisk.frameIndex(0);
                     }
                 }
-
             });
             overlords.map(function(overlord,index) {
                 overlordPos = [overlord.attrs.x-40,overlord.attrs.y];
-                if (overlord.action != 'die') {
+                if (overlord.action != 'die'||'go') {
                     if (boxCollides(overlordPos,overlordSize,heroBulletPos,heroBulletSize)) {
                         console.log('over must die');
-                        heroBullets[i].setX(-1000);
-                        heroBullets.splice(i,1);
+                        if(heroBullets[i]) {
+                            heroBullets[i].setX(-1000);
+                            heroBullets.splice(i,1);
+                        }
+                        overlordDeath.play();
                         overlord.action='die';
                         overlord.attrs.animation='die';
                         overlord.frameRate=16;
                         overlord.frameIndex(0);
+                        
                     }
                 }
 
             });
         }
     }
+
+    // for collisions between hero and enemies
+    mutalisks.map(function(mutalisk,index) {
+        mutaliskPos = [mutalisk.attrs.x,mutalisk.attrs.y];
+        if (mutalisk.action != 'die') {
+            if (boxCollides(mutaliskPos,mutaliskSize,heroPos,heroSize)) {
+                console.log('mutal must die');
+                mutaliskDeath.play();
+                mutalisk.action='die';
+                mutalisk.attrs.animation='die';
+                mutalisk.frameIndex(0);
+                lastTouch = Date.now();
+                if (health>70) {
+                    heroFace.attrs.animation = 'takeDamage';              
+                   } 
+                   else if (health<70&&health>35) {
+                    heroFace.attrs.animation = 'takeDamageDamaged';
+                   }
+                   else if (health<35) {
+                    heroFace.attrs.animation = 'takeDamagePreDeath';
+                   }   
+                    heroFace.attrs.frameIndex=0;
+                if(shield>=10) {
+                    shield-=10;
+                    shieldHit.play();
+                }
+                else {
+                    health-=10-shield;
+                    shield=0;
+                }
+
+            }
+        }
+    });
+
+    overlords.map(function(overlord,index) {
+        overlordPos = [overlord.attrs.x+10,overlord.attrs.y];
+        if (overlord.action != 'die') {
+            if (boxCollides(overlordPos,overlordSize,heroPos,heroSize)) {
+                console.log('over must die');
+                overlordDeath.play();
+                overlord.action='die';
+                overlord.attrs.animation='die';
+                overlord.frameIndex(0);
+                lastTouch = Date.now();
+                if (health>70) {
+                    heroFace.attrs.animation = 'takeDamage';              
+                   } 
+                   else if (health<70&&health>35) {
+                    heroFace.attrs.animation = 'takeDamageDamaged';
+                   }
+                   else if (health<35) {
+                    heroFace.attrs.animation = 'takeDamagePreDeath';
+                   }   
+                    heroFace.attrs.frameIndex=0;
+                if(shield>=20) {
+                    shield-=20;
+                    shieldHit.play();
+                }
+                else {
+                    health-=20-shield;
+                    shield=0;
+                }
+
+            }
+        }
+    });
+
+    overlords.map(function(overlord,index) {
+        overlordPos = [overlord.attrs.x,overlord.attrs.y];
+        if (overlord.action != 'die') {
+            if (boxCollides(overlordPos,overlordSize,gameRightCorner,[10,gameHeight])) {
+                console.log('over must die');
+                overlordDeath.play();
+                overlord.action='die';
+                overlord.attrs.animation='die';
+                overlord.frameIndex(0);
+                    health-=5;
+            }
+        }
+    });
 }
 
 
@@ -528,8 +788,8 @@ function checkCollisions() {
 //text
 
 let scoreText = new Konva.Text({
-    x: 630,
-    y: 570,
+    x: 730,
+    y: 620,
     text: 'text',
     fontSize:24,
     fontStyle:'bold',
@@ -542,8 +802,8 @@ let scoreText = new Konva.Text({
  
 
 let heroHealth = new Konva.Text({
-    x: 135,
-    y: 525,
+    x: 235,
+    y: 575,
     text: 'text',
     fontSize:46,
     fontStyle:'bold',
@@ -555,8 +815,8 @@ let heroHealth = new Konva.Text({
 });
 
 let heroShield = new Konva.Text({
-    x: 460,
-    y: 525,
+    x: 560,
+    y: 575,
     text: 'text',
     fontSize:46,
     fontStyle:'bold',
@@ -568,8 +828,8 @@ let heroShield = new Konva.Text({
 });
 
 let heroBulletsText = new Konva.Text({
-    x:0,
-    y:525,
+    x:100,
+    y:575,
     text:'text',
     fontSize:46,
     fontStyle:'bold',
@@ -618,4 +878,8 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-updateDifficult();
+soundTrack.play();
+makeEnemy('overlord', -600,70);
+makeEnemy('overlord', -500,250);
+makeEnemy('overlord', -700,400);
+// updateDifficult();
