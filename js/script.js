@@ -22,12 +22,12 @@ let gameWidth = 1000,
 
 
 
-let     soundTrack = new Audio('/Sait/RollingScopsJS/game/src/sounds/soundtrack.mp3'),
-        overlordDeath = new Audio('/Sait/RollingScopsJS/game/src/sounds/overlord_death.mp3'),
-        mutaliskDeath = new Audio('/Sait/RollingScopsJS/game/src/sounds/mutalisk_death.mp3'),
-        heroAttack = new Audio('/Sait/RollingScopsJS/game/src/sounds/hero_Attack.mp3'),
-        mutaliskHit = new Audio('/Sait/RollingScopsJS/game/src/sounds/mutalisk_hit.mp3'),
-        shieldHit = new Audio('/Sait/RollingScopsJS/game/src/sounds/shield_hit.mp3');
+let     soundTrack = new Audio('../sounds/soundtrack.mp3'),
+        overlordDeath = new Audio('../sounds/overlord_death.mp3'),
+        mutaliskDeath = new Audio('../sounds/mutalisk_death.mp3'),
+        heroAttack = new Audio('../sounds/hero_Attack.mp3'),
+        mutaliskHit = new Audio('../sounds/mutalisk_hit.mp3'),
+        shieldHit = new Audio('../sounds/shield_hit.mp3');
 
 
 
