@@ -12,7 +12,17 @@ body {
     align-items: center;
 
     height:100%;
+    position:relative;
 }
+
+.title {
+    justify-self: flex-start;
+    font-size: 72px;
+    color:white;
+    margin-bottom:200px;
+}
+
+
 
 #game {
     background-image: url("../img/background.jpg");
@@ -24,10 +34,61 @@ body {
     box-shadow: 0 0 250px white;
 }
 
+.button.hidden, .button.started, .hidden {
+    display:none;
+}
+
 .dead {
     display:none;
     width: 100%;
     text-align: center;
-    margin-top: 100px;
     background-color:white;
 }
+
+.description {
+    display:flex;
+    flex-direction:column;
+    justify-content: center;
+    align-items: center;
+    position:absolute;
+    content: "";
+    top:0;
+    width:1000px;
+    height:650px;
+    border:2px solid white;
+    background-size: cover;
+    border-radius:10px;
+    box-shadow: 0 0 250px white;
+    transition: transform 3s ease;
+}
+
+.button {
+    margin-top:20px;
+    width:350px;
+    height:80px;
+    border:2px solid white;
+    border-radius:10px;
+    color:white;
+    font-size:54px;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    transition:all .6s ease;
+    box-shadow:0 0 30px white;
+
+}
+
+.button:hover {
+    width:430px;
+    font-size:64px;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    cursor:pointer;
+
+}
+
+.slideToTop {
+    transform: translateY(-1000px);
+}
+

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,27 +9,30 @@
     <link rel="stylesheet" href="css/style.css">
     <script src="js/konva.min.js"></script>
     <script src="js/input.js"></script>
-    
+
 </head>
+
 <body>
-    <div class="dead" id="dead">
-        <h2>Вы погибли в бою! :(</h2>
-        <h2>Ваш счет: <span id="score"></span></h2>
-    </div>
     <div class="container" id="container">
-        <div id="game">
+        <div class="description" id="description">
+            <h1 class="title">The Last Day Of Us</h1>
+            <div class="dead" id="dead">
+                <h2>Вы погибли в бою! :(</h2>
+                <h2>Ваш счет:
+                    <span id="score"></span>
+                </h2>
+            </div>
+            <div class="button" id="startGame" onclick="startGame();">Start Game</div>
+           <!-- <div class="button" onclick="pauseGame();">pause</div>-->
+            <div class="button hidden" id="resumeGame" onclick="resumeGame();">Resume Game</div>
+            <div class="button" id="gameDescription" >Description</div>
+        </div>
+
+
+        <div id="game" class="hidden">
         </div>
     </div>
-
-    <audio id='overlord_death'>
-            <source src='sounds/overlord_death.mp3' type='audio/mp3'>
-            <source src='sounds/overlord_death.ogg' type='audio/ogg'>
-    </audio>
-    <audio id='mutalisk_death'>
-            <source src='sounds/overlord_death.mp3' type='audio/mp3'>
-            <source src='sounds/overlord_death.ogg' type='audio/ogg'>
-    </audio>
-
     <script src="js/script.js"></script>
 </body>
+
 </html>
