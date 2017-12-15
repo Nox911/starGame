@@ -37,7 +37,7 @@ let gameWidth = 1000,
 const   soundTrack = new Audio('sounds/soundtrack.mp3'),
         overlordDeath = new Audio('sounds/overlord_death.mp3'),
         mutaliskDeath = new Audio('sounds/mutalisk_death.mp3'),
-        heroAttack = new Audio('sounds/hero_Attack.mp3'),
+        heroAttack = new Audio('sounds/hero_attack.mp3'),
         mutaliskHit = new Audio('sounds/mutalisk_hit.mp3'),
         shieldHit = new Audio('sounds/shield_hit.mp3'),
         scourgeDeath = new Audio('sounds/scourge_death.mp3'),
@@ -1327,7 +1327,7 @@ pauseText.on('click', function() {
 //end game
 function gameOver() { 
     soundTrack.pause();
-    gameOverSound.play();
+    gameOverTrack.play();
     gameLoop.stop();
     document.getElementById('score').innerText = score;
     document.getElementById('dead').style.display = "block";
