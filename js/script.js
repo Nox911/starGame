@@ -43,7 +43,8 @@ const   soundTrack = new Audio('sounds/soundtrack.mp3'),
         scourgeDeath = new Audio('sounds/scourge_death.mp3'),
         kerriganSpeech = new Audio('sounds/kerrigan_speech.mp3'),
         heroSpeech = new Audio('sounds/hero_speech.mp3'),
-        godModeSpeech = new Audio('sounds/godMode_speech.mp3');
+        godModeSpeech = new Audio('sounds/godMode_speech.mp3'),
+        gameOverTrack = new Audio('sounds/gameOver_sound.mp3');
 
 // create Stage of Konva
 const stage = new Konva.Stage({
@@ -949,14 +950,12 @@ function checkCollisions() {
         mutaliskSize=[35,30],
         mutaliskBulletPos=[],
         mutaliskBulletSize = [18,18],
-        mutaliskSomePosition=0,
         overlordPos=[],
         overlordSize=[50,60],
-        overlordSomePosition=0,
         scourgePos=[],
         scourgeSize=[20,20],
-        scourgeSomePosition=0,
-        gameRightCorner=[gameWidth+100,0];
+        gameRightCorner=[gameWidth+100,0],
+        enemiesSomePosition=0;
 
 
 // for colisions between enemies bullets and hero
@@ -988,9 +987,7 @@ function checkCollisions() {
     });
 // for collisions between heroBullets and enimies
     heroBullets.forEach(function (bullet,index) {
-        mutaliskSomePosition=0;
-        overlordSomePosition=0;
-        scourgeSomePosition=0;
+        enemiesSomePosition=0;
         heroBulletPos = [bullet.attrs.x, bullet.attrs.y];
         mutalisks.forEach(function(mutalisk) {
             mutaliskPos = [mutalisk.attrs.x+15,mutalisk.attrs.y+23];
@@ -998,12 +995,12 @@ function checkCollisions() {
                 if (boxCollides(mutaliskPos,mutaliskSize,heroBulletPos,heroBulletSize)) {
                     console.log('mutal must die');
                     mutaliskDeath.play();
-                        if(mutaliskSomePosition===0) {
+                        if(enemiesSomePosition===0) {
                         bullet.stop();
                         bullet.remove();
                         heroBullets.splice(index,1);
                         };
-                        mutaliskSomePosition++;
+                        enemiesSomePosition++;
                     mutalisk.action='die';
                     mutalisk.attrs.animation='die';
                     mutalisk.frameIndex(0);
@@ -1015,13 +1012,13 @@ function checkCollisions() {
             if (overlord.action != 'die') {
                 if (boxCollides(overlordPos,overlordSize,heroBulletPos,heroBulletSize)) {
                     console.log('over must die');
-                    if (overlordSomePosition===0){
+                    if (enemiesSomePosition===0){
                         bullet.stop();
                         bullet.remove();
 
                         heroBullets.splice(index,1);
                     }
-                    overlordSomePosition++;
+                    enemiesSomePosition++;
                     overlordDeath.play();
                     overlord.action='die';
                     overlord.attrs.animation='die';
@@ -1034,13 +1031,13 @@ function checkCollisions() {
             if (scourge.action != 'die') {
                 if (boxCollides(scourgePos,scourgeSize,heroBulletPos,heroBulletSize)) {
                     console.log('scourge must die');
-                    if (scourgeSomePosition===0){
+                    if (enemiesSomePosition===0){
                         bullet.stop();
                         bullet.remove();
 
                         heroBullets.splice(index,1);
                     }
-                    scourgeSomePosition++;
+                    enemiesSomePosition++;
                     scourgeDeath.play();
                     scourge.action='die';
                     scourge.attrs.animation='die';
@@ -1288,11 +1285,11 @@ function soundtrackPlay () {
 // infinity game loop
 let gameLoop = new Konva.Animation(function(frame) {
     if(kerrigan.action!=='out') {
-            moveKerrigan ();
-            movePilot();
-            collisionPilot();
-            diePilot();
-        }
+        moveKerrigan ();
+        movePilot();
+        collisionPilot();
+        diePilot();
+    }
     handleInput();
     heroFaceDefault();
     deactivateShield();
@@ -1330,17 +1327,19 @@ pauseText.on('click', function() {
 //end game
 function gameOver() { 
     soundTrack.pause();
+    gameOverSound.play();
     gameLoop.stop();
     document.getElementById('score').innerText = score;
     document.getElementById('dead').style.display = "block";
-    document.getElementById('description').classList.remove('slideToTop');
+    document.getElementById('startPage').classList.remove('slideToTop');
     document.getElementById('game').classList.add('hidden');
     document.getElementById('resumeGame').classList.add('hidden');
+    document.getElementById('descriptionButton').classList.add('hidden');
 }
 
 // FOR INTRO SCENE
 function createIntroScene() {
-    makeEnemy('kerrigan', -500,260);
+    makeEnemy('kerrigan', -400,260);
     createPilot(1950,50);
     createPilot(1880,130);
     createPilot(1880,380);
@@ -1462,14 +1461,14 @@ function kerriganAttack () {
 // BUTTON ON THE FIRST SCREEN
 function startGame () {
     document.getElementById('game').classList.remove('hidden');
-    document.getElementById('description').classList.add('slideToTop');
+    document.getElementById('startPage').classList.add('slideToTop');
     document.getElementById('startGame').classList.add('started');
     gameLoop.start();
     soundTrack.play();
     createIntroScene();
 }
 function pauseGame () {
-    document.getElementById('description').classList.remove('slideToTop');
+    document.getElementById('startPage').classList.remove('slideToTop');
     document.getElementById('game').classList.add('hidden');
     document.getElementById('resumeGame').classList.remove('hidden');
     gameLoop.stop();
@@ -1477,7 +1476,15 @@ function pauseGame () {
 }
 function resumeGame () {
     document.getElementById('game').classList.remove('hidden');
-    document.getElementById('description').classList.add('slideToTop');
+    document.getElementById('startPage').classList.add('slideToTop');
     gameLoop.start();
     soundTrack.play();
+}
+function descriptionButton () {
+    document.getElementById('startPage').classList.add('slideToTop');
+    document.getElementById('descriptionPage').classList.remove('slideToTop');
+}
+function backButton () {
+    document.getElementById('startPage').classList.remove('slideToTop');
+    document.getElementById('descriptionPage').classList.add('slideToTop');
 }

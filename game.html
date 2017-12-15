@@ -14,21 +14,35 @@
 
 <body>
     <div class="container" id="container">
-        <div class="description" id="description">
+        <div class="startPage" id="startPage">
             <h1 class="title">The Last Day Of Us</h1>
             <div class="dead" id="dead">
-                <h2>Вы погибли в бою! :(</h2>
-                <h2>Ваш счет:
+                <h2>You died in the battle! :(</h2>
+                <h2>Your score:
                     <span id="score"></span>
                 </h2>
+                <h2>Please reload page if you want play again;)</h2>
             </div>
             <div class="button" id="startGame" onclick="startGame();">Start Game</div>
-           <!-- <div class="button" onclick="pauseGame();">pause</div>-->
+    
             <div class="button hidden" id="resumeGame" onclick="resumeGame();">Resume Game</div>
-            <div class="button" id="gameDescription" >Description</div>
+            <div class="button" id="descriptionButton" onclick="descriptionButton();">Description</div>
         </div>
-
-
+        <div class="descriptionPage slideToTop" id="descriptionPage">
+                <h1 class="title">The Last Day Of Us</h1>
+                <div class="descriptionText">
+                    <h2 class="descriptionTitle">Quick guide:</h2>
+                    <ul>
+                        <li><span>Use 'Arrows' or 'w' 'a' 's' 'd' keys for moving you hero</span></li>
+                        <li><span>Press 'g' key for using GOD MODE (duration:5 seconds, recovery:40 seconds</span></li>
+                        <li><span>Press 'Pause button' in the right bottom corner of the screen for pausing game</span></li>
+                        <li><span>If enemies reach end of the screen you life points decrease</span></li>
+                        <li><span>Earn more then 30000 points for preparing to die;)</span></li>
+                        <li><span>Kill them all!!!</span></li>
+                    </ul>
+                </div>            
+                <div class="button" id="backButton" onclick="backButton();">Back</div>
+            </div>
         <div id="game" class="hidden">
         </div>
     </div>
