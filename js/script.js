@@ -1242,13 +1242,13 @@ layer.add(godModeText);
 function updateDifficult () {
     if(kerrigan.action==='out'){
         difficult=score/1000;
-        if ((difficult >= 0)&&(difficult<2)) {
+        if ((difficult >= 0)&&(difficult<1.3)) {
             countEnemies=2;
         }
-        if ((difficult >= 2)&&(difficult<5)) {
+        if ((difficult >= 1.3)&&(difficult<4.5)) {
             countEnemies=4;
         }
-        if ((difficult >= 5)&&(difficult<10)) {
+        if ((difficult >= 4.5)&&(difficult<10)) {
             countEnemies=8;
         }
         if ((difficult >= 10)&&(difficult<15)) {
