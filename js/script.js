@@ -43,6 +43,7 @@ const   soundTrack = new Audio('sounds/soundtrack.mp3'),
         scourgeDeath = new Audio('sounds/scourge_death.mp3'),
         kerriganSpeech = new Audio('sounds/kerrigan_speech.mp3'),
         heroSpeech = new Audio('sounds/hero_speech.mp3'),
+        heroDeath = new Audio('sounds/hero_death.mp3'),
         godModeSpeech = new Audio('sounds/godMode_speech.mp3'),
         gameOverTrack = new Audio('sounds/gameOver_sound.mp3');
 
@@ -57,6 +58,7 @@ function muteGame (n) {
     scourgeDeath.volume=n;
     kerriganSpeech.volume=n;
     heroSpeech.volume=n;
+    heroDeath.volume=n;
     godModeSpeech.volume=n;
     gameOverTrack.volume=n;
 }
@@ -1013,6 +1015,7 @@ function heroDie() {
     hero.attrs.frameIndex=0;
     hero.action='die';
     hero.attrs.animation='die';
+    heroDeath.play();
     }   
 }
 
@@ -1468,7 +1471,7 @@ function soundtrackPlay () {
 }
 
 // infinity game loop
-let gameLoop = new Konva.Animation(function(frame) {
+let gameLoop = new Konva.Animation(function() {
     if(kerrigan.action!=='out') {
         moveKerrigan ();
         movePilot();
