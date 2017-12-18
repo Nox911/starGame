@@ -40,7 +40,6 @@ body {
     display:none;
     width: 100%;
     text-align: center;
-    background-color:white;
 }
 
 .startPage, .descriptionPage {
@@ -50,7 +49,7 @@ body {
     align-items: center;
     position:absolute;
     content: "";
-    top:0;
+    top:10vh;
     width:1000px;
     height:650px;
     border:2px solid white;
@@ -60,13 +59,50 @@ body {
     transition: transform 3s ease;
 }
 
+.copyright {
+    padding-top:100px;
+    color:white;
+}
+
+.descriptionPage {
+    justify-content:space-evenly;
+}
+
+.screenshoots {
+    width:100%;
+    display:flex;
+    flex-direction:row;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.screenshoot {
+    border:2px solid white;
+    border-radius:5px;
+    transition:transform 1s ease;
+}
+
+.screenshoot:hover {
+    transform: scale(1.5);
+}
+
 .descriptionText {
     color:white;
     font-size:18px;
 }
 
-.descriptionTitle {
+.descriptionTitle, .endGameText {
 text-align:center;
+color:white;
+font-size:32px;
+}
+
+.endGameText {
+    display:block;
+}
+
+.scoreText {
+    color:#ce0b0b;
 }
 
 .button {
@@ -84,6 +120,10 @@ text-align:center;
     box-shadow:0 0 30px white;
 }
 
+/* .backbutton {
+    margin-bottom:20px;
+} */
+
 .button:hover {
     width:430px;
     font-size:64px;
@@ -95,5 +135,5 @@ text-align:center;
 }
 
 .slideToTop {
-    transform: translateY(-1000px);
+    transform: translateY(-1500px);
 }

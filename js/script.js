@@ -15,7 +15,7 @@ let gameWidth = 1000,
     dispHealth=100,
     dispShield=100,
     overlords=[],
-    overlordSpeed=0.5,
+    overlordSpeed=0.75,
     mutalisks=[],
     mutaliskSpeed=1,
     mutaliskBullets=[],
@@ -45,6 +45,21 @@ const   soundTrack = new Audio('sounds/soundtrack.mp3'),
         heroSpeech = new Audio('sounds/hero_speech.mp3'),
         godModeSpeech = new Audio('sounds/godMode_speech.mp3'),
         gameOverTrack = new Audio('sounds/gameOver_sound.mp3');
+
+//mute game 
+function muteGame (n) {
+    soundTrack.volume=n;
+    overlordDeath.volume=n;
+    mutaliskDeath.volume=n;
+    heroAttack.volume=n;
+    mutaliskHit.volume=n;
+    shieldHit.volume=n;
+    scourgeDeath.volume=n;
+    kerriganSpeech.volume=n;
+    heroSpeech.volume=n;
+    godModeSpeech.volume=n;
+    gameOverTrack.volume=n;
+}
 
 // create Stage of Konva
 const stage = new Konva.Stage({
@@ -326,7 +341,16 @@ const animationsDevourer = {
         180,123,18,22
     ],
     bulletHit: [
-
+        1,147,62,62,
+        66,147,62,62,
+        131,147,62,62,
+        196,147,62,62,
+        261,147,62,62,
+        1,213,62,62,
+        66,213,62,62,
+        131,213,62,62,
+        196,213,62,62,
+        261,213,62,62
     ],
     die : [
         0,62,68,58,
@@ -562,7 +586,11 @@ function handleInput() {
         godModeText.setAttr('stroke','transparent');
         }
     }
-}  
+    // pause game
+    if(input.isDown('p')) {
+        pauseGame();
+    }
+}
 
 //create enemies
 function makeEnemy(type, x,y) {
@@ -636,6 +664,8 @@ function makeEnemy(type, x,y) {
                 frameIndex:0    
             });
             devourer.action='move';
+            devourer.time=10;
+            devourer.position=getRandomInt(80,250);
             devourers.push(devourer);    
             layer.add(devourer);
             stage.add(layer);
@@ -779,13 +809,24 @@ function moveMutalisk () {
     });
 }
 
-// moving scourge 
+// scourge moving
 function moveScourge() {
     scourges.forEach(function(scourge){
         if ((scourge.action!=='die')) {
         scourge.setX(scourge.attrs.x + scourgeSpeed);
         scourge.attrs.animation = 'move';
         scourge.action='move';
+        };
+    });
+}
+
+// devourer moving
+function moveDevourer () {
+    devourers.forEach(function(devourer){
+        if ((devourer.attrs.x < devourer.position)&&(devourer.action!=='die')) {
+        devourer.setX(devourer.attrs.x + devourerSpeed);
+        devourer.attrs.animation = 'idle';
+        devourer.action='go';
         };
     });
 }
@@ -832,6 +873,19 @@ function scourgeDie() {
     });
 }
 
+// devourer diying
+function devourerDie() {
+    devourers.forEach(function(devourer,index) {
+        if ((devourer.action==='die') && (devourer.attrs.frameIndex>7)) {
+            devourer.stop();
+            devourer.remove();
+            devourers.splice(index,1);
+            score+=200;
+            updateDifficult();
+        }
+    });
+}
+
 //ENEMIES ATTACKING
 
 //mutalisk attacking
@@ -854,6 +908,26 @@ function mutaliskAttack() {
     });     
 }
 
+//devourer attacking
+function devourerAttack() {
+    let attackPeriod = 150;
+    devourers.forEach(function(devourer,index) {
+        if ((devourer.attrs.x>=70) && (devourer.action!=='die')){
+            devourer.time++;   
+            if (devourer.time > attackPeriod && devourer.attrs.animation === 'idle') {
+                devourer.action = 'attack';
+                devourer.attrs.animation = 'idle';
+                devourer.time -= attackPeriod;
+            };             
+            // devourer create bullet
+            if (devourer.action === 'attack') {
+                makeBullet('devourerkBullet', devourer.attrs.x+40,devourer.attrs.y+40);
+                devourer.action = 'move';
+            };
+         }
+    });     
+}
+
 // BULLET MOVING
 
 // mutalisk bullet moving
@@ -866,6 +940,20 @@ function moveMutaliskBullet () {
         if (mutaliskBullet.attrs.x > gameWidth) {
             mutaliskBullet.remove();
             mutaliskBullets.splice(index,1);
+        }
+    });
+}
+
+// devourer bullet moving
+function moveDevourerBullet () {
+    devourerBullets.forEach(function(devourerBullet,index){
+        devourerBullet.setX(devourerBullet.attrs.x + devourerBulletSpeed);
+        if(devourerBullet.action!=='hit'){
+        devourerBullet.attrs.animation = 'bullet';
+        }
+        if (devourerBullet.attrs.x > gameWidth) {
+            devourerBullet.remove();
+            devourerBullets.splice(index,1);
         }
     });
 }
@@ -892,6 +980,17 @@ function hitMutaliskBullet() {
             bullet.stop();
             bullet.remove();
             mutaliskBullets.splice(index,1);
+        }
+    });
+}
+
+// devourer bullet hit
+function hitDevourerBullet() {
+    devourerBullets.forEach(function(bullet,index){
+        if (bullet.action==='hit'&&bullet.attrs.frameIndex>8) {         
+            bullet.stop();
+            bullet.remove();
+            devourerBullets.splice(index,1);
         }
     });
 }
@@ -954,6 +1053,10 @@ function checkCollisions() {
         overlordSize=[50,60],
         scourgePos=[],
         scourgeSize=[20,20],
+        devourerPos = [],
+        devourerSize=[50,60],
+        devourerBulletPos=[],
+        devourerBulletSize = [18,18],
         gameRightCorner=[gameWidth+100,0],
         enemiesSomePosition=0;
 
@@ -962,6 +1065,32 @@ function checkCollisions() {
     mutaliskBullets.forEach(function(bullet,index) {
         mutaliskBulletPos=[bullet.attrs.x, bullet.attrs.y];
         if (boxCollides(mutaliskBulletPos, mutaliskBulletSize, heroPos, heroSize)) {
+            if(bullet.action!=='hit'){
+                bullet.action='hit';
+                bullet.setY(bullet.attrs.y-20);
+
+                bullet.attrs.animation='bulletHit';
+                bullet.attrs.frameIndex=0;
+                lastTouch = Date.now();
+                heroFaceTakeDamage ();
+                if(hero.ability!=='god'){
+                    if(shield<8){
+                        mutaliskHit.play();
+                        health-=8-shield;
+                        shield=0;
+                    }
+                    else {
+                        shield-=8;
+                        shieldHit.play();
+                        shieldActive();
+                    }
+                }
+            }
+        }  
+    });
+    devourerBullets.forEach(function(bullet,index) {
+        devourerBulletPos=[bullet.attrs.x, bullet.attrs.y];
+        if (boxCollides(devourerBulletPos, devourerBulletSize, heroPos, heroSize)) {
             if(bullet.action!=='hit'){
                 bullet.action='hit';
                 bullet.setY(bullet.attrs.y-20);
@@ -1056,6 +1185,32 @@ function checkCollisions() {
                 mutalisk.action='die';
                 mutalisk.attrs.animation='die';
                 mutalisk.frameIndex(0);
+                if(hero.ability!=='god'){
+                    lastTouch = Date.now();
+                    heroFaceTakeDamage ();
+                    if(shield>=5) {
+                        shield-=5;
+                        shieldHit.play();
+                        shieldActive();
+                    }
+                    else {
+                        health-=5-shield;
+                        shield=0;
+                    }
+                }
+            }
+        }
+    });
+
+    devourers.forEach(function(devourer) {
+        devourerPos = [devourer.attrs.x+15,devourer.attrs.y+23];
+        if (devourer.action != 'die') {
+            if (boxCollides(devourerPos,devourerSize,heroPos,heroSize)) {
+                console.log('devourer must die');
+                // devourerDeath.play();
+                devourer.action='die';
+                devourer.attrs.animation='die';
+                devourer.frameIndex(0);
                 if(hero.ability!=='god'){
                     lastTouch = Date.now();
                     heroFaceTakeDamage ();
@@ -1220,6 +1375,17 @@ let pauseText = new Konva.Text({
     fill:'green'
 });
 
+let muteText = new Konva.Text({
+    x: 926,
+    y: 605,
+    text:'MUTE',
+    fontSize:24,
+    fontStyle:'bold',
+    fontFamily:'Helvetica Neue',
+    stroke:'black',
+    fill:'green'
+});
+
 let godModeText = new Konva.Text({
     x: 378,
     y: 620,
@@ -1237,26 +1403,33 @@ layer.add(heroShield);
 layer.add(heroBulletsText);
 layer.add(pauseText);
 layer.add(godModeText);
+layer.add(muteText);
 
 // increase amount of enemies
 function updateDifficult () {
     if(kerrigan.action==='out'){
         difficult=score/1000;
-        if ((difficult >= 0)&&(difficult<1.3)) {
+        if ((difficult >= 0)&&(difficult<1)) {
             countEnemies=2;
         }
-        if ((difficult >= 1.3)&&(difficult<4.5)) {
+        if ((difficult >= 1)&&(difficult<2)) {
             countEnemies=4;
         }
-        if ((difficult >= 4.5)&&(difficult<10)) {
+        if ((difficult >= 2)&&(difficult<4)) {
             countEnemies=8;
         }
-        if ((difficult >= 10)&&(difficult<15)) {
+        if ((difficult >= 4)&&(difficult<9)) {
             countEnemies =12;
         }
+        if ((difficult >= 9)&&(difficult<16)) {
+            countEnemies =16;
+        }      
+        if ((difficult >= 16)&&(difficult<30)) {
+            countEnemies =20;
+        }   
         //you will die;)
         if ((difficult >= 30)) {
-            countEnemies = 26;
+            countEnemies = 28;
         }
         while (overlords.length < countEnemies/2) {
             makeEnemy('overlord', getRandomInt(-200,-80), getRandomInt(0, 440));       
@@ -1267,6 +1440,9 @@ function updateDifficult () {
         while (scourges.length+2 < countEnemies/4) {
         makeEnemy('scourge', getRandomInt(-200,-80), getRandomInt(30, 410));     
         }
+        // while (devourers.length < countEnemies/2) {
+        //     makeEnemy('devourer', getRandomInt(-200,-80), getRandomInt(30, 410));     
+        // }
     }
 }
 
@@ -1298,12 +1474,16 @@ let gameLoop = new Konva.Animation(function(frame) {
     moveOverlord();
     moveMutalisk ();
     moveScourge();
+    // moveDevourer();
     mutaliskAttack();
     moveMutaliskBullet ();
     hitMutaliskBullet();
+    // moveDevourerBullet ();
+    // hitDevourerBullet();
     overlordDie();
     mutaliskDie();
     scourgeDie();
+    // devourerDie();
     moveHeroBullet ();
     heroDie();
     checkCollisions();
@@ -1324,6 +1504,32 @@ pauseText.on('click', function() {
     pauseGame();
 });
 
+// mute button
+muteText.on('mouseenter', function () {
+    this.setFill('#ce0b0b');
+    stage.container().style.cursor = 'pointer';
+});
+muteText.on('mouseleave', function () {
+    if (soundTrack.volume === 0) {
+        this.setFill('grey');
+    }
+    else {
+        this.setFill('green');
+    }
+
+    stage.container().style.cursor = 'default';
+});
+muteText.on('click', function() {
+    if (soundTrack.volume ===1) {
+        muteGame(0);
+        this.setFill('grey');
+    }
+    else {
+        muteGame(1);
+        this.setFill('green');
+    }
+});
+
 //end game
 function gameOver() { 
     soundTrack.pause();
@@ -1335,6 +1541,7 @@ function gameOver() {
     document.getElementById('game').classList.add('hidden');
     document.getElementById('resumeGame').classList.add('hidden');
     document.getElementById('descriptionButton').classList.add('hidden');
+    document.getElementById('reload').classList.remove('hidden');
 }
 
 // FOR INTRO SCENE
@@ -1414,10 +1621,10 @@ function diePilot(){
 
 // kerrigan move 
 function moveKerrigan () {
-    if (kerrigan.attrs.x<380&&kerrigan.action==='move'&&pilots[0].action==='waiting') {
+    if (kerrigan.attrs.x<300&&kerrigan.action==='move'&&pilots[0].action==='waiting') {
         kerrigan.setX(kerrigan.attrs.x+1);
     }
-    if (kerrigan.attrs.x===380&&kerrigan.action==='move') {
+    if (kerrigan.attrs.x===300&&kerrigan.action==='move') {
         kerrigan.attrs.animation='attack';
         kerriganAttack.action='attack';
         kerrigan.attrs.frameIndex=0;
@@ -1487,4 +1694,8 @@ function descriptionButton () {
 function backButton () {
     document.getElementById('startPage').classList.remove('slideToTop');
     document.getElementById('descriptionPage').classList.add('slideToTop');
+}
+
+function reloadPage () {
+    document.location.reload();
 }

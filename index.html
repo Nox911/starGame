@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Game</title>
+    <title>The Last Battle</title>
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon.png">
     <link rel="stylesheet" href="css/style.css">
     <script src="js/konva.min.js"></script>
     <script src="js/input.js"></script>
@@ -15,37 +16,44 @@
 <body>
     <div class="container" id="container">
         <div class="startPage" id="startPage">
-            <h1 class="title">The Last Day Of Us</h1>
-            <div class="dead" id="dead">
-                <h2>You died in the battle! :(</h2>
-                <h2>Your score:
-                    <span id="score"></span>
-                </h2>
-                <h2>Please reload page if you want play again;)</h2>
+            <h1 class="title">The Last Battle</h1>
+            <div class="dead hidden" id="dead">
+                <span class="endGameText">You died in the battle! :(</span>
+                <span class="endGameText">Your score:<span class="scoreText" id="score"></span></span>
+                <span class="endGameText">Please reload page if you want play again;)</span>
+                
             </div>
+            <div class="button hidden" id="reload" onclick="reloadPage();">Reload Page</div>
             <div class="button" id="startGame" onclick="startGame();">Start Game</div>
     
             <div class="button hidden" id="resumeGame" onclick="resumeGame();">Resume Game</div>
-            <div class="button" id="descriptionButton" onclick="descriptionButton();">Description</div>
+            <div class="button" id="descriptionButton" onclick="descriptionButton();">How To Play</div>
+            <copyright class="copyright">Created by Nox</copyright>
         </div>
         <div class="descriptionPage slideToTop" id="descriptionPage">
-                <h1 class="title">The Last Day Of Us</h1>
+                <h2 class="descriptionTitle">Quick guide:</h2>
+                <div class="screenshoots">
+                    <img class="screenshoot" width="260px" height="170px" src="img/screen_01.png" alt="Screenshoot 1">
+                    <img class="screenshoot" width="260px" height="170px" src="img/screen_02.png" alt="Screenshoot 2">
+                    <img class="screenshoot" width="260px" height="170px" src="img/screen_03.png" alt="Screenshoot 3">
+                </div>
                 <div class="descriptionText">
-                    <h2 class="descriptionTitle">Quick guide:</h2>
                     <ul>
-                        <li><span>Use 'Arrows' or 'w' 'a' 's' 'd' keys for moving you hero</span></li>
-                        <li><span>Press 'Space' key for fire</span></li>
-                        <li><span>Press 'g' key for using GOD MODE (duration:5 seconds, recovery:40 seconds)</span></li>
-                        <li><span>Press 'Pause button' in the right bottom corner of the screen for pausing game</span></li>
+                        <li><span>Use 'Arrows' or 'W' 'A' 'S' 'D' keys for moving you hero</span></li>
+                        <li><span>Press 'SPACE' key for fire</span></li>
+                        <li><span>Press 'G' key for using GOD MODE (you don't take damage)</span></li>
+                        <li><span>Press 'Pause button' in the right bottom corner of the screen or 'p' key for pausing game</span></li>
                         <li><span>If enemies reach end of the screen you life points decrease</span></li>
-                        <li><span>Earn more then 30000 points for preparing to die;)</span></li>
-                        <li><span>Kill them all!!!</span></li>
+                        <li><span>You can crash enemies themselves</span></li>
+                        <li><span>Earn more then 30000 points for preparing to the big wave of enemies ;)</span></li>
+                        <li><span>Kill them as you can!!!</span></li>
                     </ul>
                 </div>            
-                <div class="button" id="backButton" onclick="backButton();">Back</div>
+                <div class="button backbutton" id="backButton" onclick="backButton();">Back</div>
             </div>
         <div id="game" class="hidden">
         </div>
+
     </div>
     <script src="js/script.js"></script>
 </body>
