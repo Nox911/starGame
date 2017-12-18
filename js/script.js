@@ -520,7 +520,7 @@ function heroFaceTakeDamage () {
 // input listening
 function handleInput() {
     // hero action if has pressed DOWN or S button
-    if(kerrigan.action==='out') {
+    if(kerrigan.action==='out'&&hero.action!=='die') {
     if(input.isDown('DOWN') || input.isDown('s')) {
         if (hero.attrs.y + 1 < gameHeight -185) { 
             hero.setY(hero.attrs.y + heroSpeed);
@@ -831,9 +831,16 @@ function moveDevourer () {
     });
 }
 
-
-
 // DIYING
+
+//hero diying 
+function heroAnimDie() {
+    if ((hero.action==='die') && (hero.attrs.frameIndex===8)) {
+        // hero.stop();
+        hero.remove();
+        gameOver();
+    }
+}
 
 // overlord diying
 function overlordDie() {
@@ -1001,9 +1008,11 @@ function heroDie() {
    if (shield > 100) {
        shield = 100;
    }
-   if (health <= 0) {
+   if (health <= 0&&hero.action!=='die') {
     health = 0;
-    gameOver();
+    hero.attrs.frameIndex=0;
+    hero.action='die';
+    hero.attrs.animation='die';
     }   
 }
 
@@ -1015,7 +1024,7 @@ function shieldActive(){
 }
 
 function deactivateShield() {
-    if (Date.now()-activeShieldAnim>1000) {
+    if (Date.now()-activeShieldAnim>1000&&hero.action!=='die') {
         hero.attrs.animation='idle';
         hero.action='idle';
     }
@@ -1486,6 +1495,7 @@ let gameLoop = new Konva.Animation(function(frame) {
     // devourerDie();
     moveHeroBullet ();
     heroDie();
+    heroAnimDie();
     checkCollisions();
     showHeroParam ();
     soundtrackPlay();
